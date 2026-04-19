@@ -1,4 +1,4 @@
-const CACHE = 'hometask-v11';
+const CACHE = 'hometask-v12';
 const FILES = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json'];
 
 self.addEventListener('install', e => {
