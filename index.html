@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="帰宅タスク">
+  <meta name="theme-color" content="#FF6B9D">
+  <title>🌸 帰宅タスク</title>
+  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <span class="header-icon">🌸</span>
+      <h1 class="header-title">帰宅タスク</h1>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- カレンダー確認カード -->
+    <section class="card" id="calendar-card">
+      <div class="card-label">
+        <span class="card-icon">📅</span>
+        <span class="card-title">Googleカレンダー</span>
+      </div>
+      <p class="calendar-loading" id="calendar-loading">確認中...</p>
+      <ul class="event-list" id="event-list"></ul>
+    </section>
+
+    <!-- 帰宅バナー -->
+    <div class="arrive-banner" id="arrive-banner" hidden>
+      <span class="arrive-banner-emoji">🎉</span>
+      <span class="arrive-banner-text">おかえり！今日のタスクを確認しよう</span>
+    </div>
+
+    <!-- タスクリスト -->
+    <section class="card">
+      <div class="card-label">
+        <span class="card-icon">✅</span>
+        <span class="card-title">帰宅後のタスク</span>
+        <button class="add-btn" id="add-task-btn" aria-label="タスクを追加">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        </button>
+      </div>
+      <ul class="task-list" id="task-list"></ul>
+      <p class="task-empty" id="task-empty" hidden>＋ボタンでタスクを追加してください</p>
+    </section>
+
+    <!-- 帰宅ボタン -->
+    <button class="arrive-btn" id="arrive-btn">
+      <span class="arrive-icon">🏠</span>
+      <span class="arrive-text">帰宅した！</span>
+    </button>
+
+  </main>
+
+  <!-- タスク追加シート -->
+  <div class="sheet-overlay" id="add-sheet" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-title">タスクを追加</h3>
+      <input class="sheet-input" id="new-task-input" type="text"
+             placeholder="例: お風呂掃除" maxlength="40">
+      <div class="sheet-btns">
+        <button class="sheet-cancel" id="sheet-cancel">キャンセル</button>
+        <button class="sheet-save" id="sheet-save">追加する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+  </script>
+</body>
+</html>

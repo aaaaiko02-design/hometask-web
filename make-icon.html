@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アイコンメーカー</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, sans-serif;
+      background: linear-gradient(135deg, #FFF0F5, #FFE4EE);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 24px;
+    }
+    h1 { font-size: 20px; color: #3D1A24; font-weight: 700; }
+
+    #drop-zone {
+      width: 280px;
+      height: 120px;
+      border: 3px dashed #FFB3CC;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      background: white;
+      transition: background .2s, border-color .2s;
+      color: #9B6B7A;
+      font-size: 15px;
+    }
+    #drop-zone.over { background: #FFE4EE; border-color: #FF6B9D; }
+    #drop-zone span { font-size: 32px; }
+
+    #preview-wrap { display: none; flex-direction: column; align-items: center; gap: 16px; }
+    canvas { border-radius: 22px; box-shadow: 0 4px 20px rgba(255,107,157,.25); }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 280px;
+    }
+    label { font-size: 13px; color: #9B6B7A; font-weight: 600; }
+    input[type=range] { width: 100%; accent-color: #FF6B9D; }
+    input[type=color] { width: 48px; height: 32px; border: none; border-radius: 8px; cursor: pointer; }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .btn-row { display: flex; gap: 10px; width: 280px; }
+    .btn-row button {
+      flex: 1;
+      padding: 14px 8px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+    #download-btn {
+      background: #fff;
+      color: #FF6B9D;
+      border: 2px solid #FF6B9D;
+    }
+    #save-btn {
+      background: linear-gradient(135deg, #FF6B9D, #FF8FAB);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255,107,157,.4);
+    }
+    #msg { font-size: 14px; color: #FF6B9D; font-weight: 600; min-height: 20px; }
+
+    #file-input { display: none; }
+  </style>
+</head>
+<body>
+  <h1>🌸 アイコンメーカー</h1>
+
+  <div id="drop-zone">
+    <span>🖼️</span>
+    画像をここにドロップ<br>またはタップして選択
+  </div>
+  <input type="file" id="file-input" accept="image/*">
+
+  <div id="preview-wrap">
+    <canvas id="canvas" width="512" height="512"></canvas>
+
+    <div class="controls">
+      <div class="row">
+        <label>文字サイズ</label>
+        <input type="range" id="font-size" min="40" max="120" value="72">
+      </div>
+      <div class="row">
+        <label>文字の色</label>
+        <input type="color" id="font-color" value="#FF6B9D">
+      </div>
+      <div class="row">
+        <label>縦位置</label>
+        <input type="range" id="text-y" min="300" max="500" value="460">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="download-btn">⬇️ ダウンロード</button>
+      <button id="save-btn">🌸 アプリに保存</button>
+    </div>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    const dropZone   = document.getElementById('drop-zone');
+    const fileInput  = document.getElementById('file-input');
+    const previewWrap = document.getElementById('preview-wrap');
+    const canvas     = document.getElementById('canvas');
+    const ctx        = canvas.getContext('2d');
+    const dlBtn      = document.getElementById('download-btn');
+    const fontSizeEl = document.getElementById('font-size');
+    const fontColorEl = document.getElementById('font-color');
+    const textYEl    = document.getElementById('text-y');
+
+    let img = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('over');
+      loadFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => loadFile(fileInput.files[0]));
+
+    [fontSizeEl, fontColorEl, textYEl].forEach(el => el.addEventListener('input', draw));
+
+    function loadFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        img = new Image();
+        img.onload = () => { previewWrap.style.display = 'flex'; draw(); };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function draw() {
+      if (!img) return;
+      const size = 512;
+      canvas.width = canvas.height = size;
+
+      // 画像を正方形に描画
+      ctx.drawImage(img, 0, 0, size, size);
+
+      // テキスト設定
+      const fontSize = parseInt(fontSizeEl.value);
+      const color    = fontColorEl.value;
+      const textY    = parseInt(textYEl.value);
+      const text     = '帰宅';
+
+      ctx.font = `bold ${fontSize}px "Hiragino Sans", "Yu Gothic", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // 白い縁取り
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth   = fontSize * 0.18;
+      ctx.lineJoin    = 'round';
+      ctx.strokeText(text, size / 2, textY);
+
+      // 文字本体
+      ctx.fillStyle = color;
+      ctx.fillText(text, size / 2, textY);
+    }
+
+    const saveBtn = document.getElementById('save-btn');
+    const msg     = document.getElementById('msg');
+
+    dlBtn.addEventListener('click', () => {
+      const out = document.createElement('canvas');
+      out.width = out.height = 192;
+      out.getContext('2d').drawImage(canvas, 0, 0, 512, 512, 0, 0, 192, 192);
+      const a = document.createElement('a');
+      a.href = out.toDataURL('image/png');
+      a.download = 'icon-192.png';
+      a.click();
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      msg.textContent = '保存中...';
+      try {
+        // 512x512 のデータをサーバーへ送信
+        const dataUrl = canvas.toDataURL('image/png');
+        const res = await fetch('/api/save-icon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: dataUrl })
+        });
+        const json = await res.json();
+        if (res.ok) {
+          msg.textContent = '✅ 保存完了！アプリを再読み込みすると反映されます';
+          msg.style.color = '#4CAF50';
+        } else {
+          msg.textContent = '❌ ' + (json.error || 'エラーが発生しました');
+          msg.style.color = '#e53935';
+        }
+      } catch (e) {
+        msg.textContent = '❌ サーバーに接続できません';
+        msg.style.color = '#e53935';
+      }
+    });
+  </script>
+</body>
+</html>
