@@ -78,9 +78,13 @@ checkCalendar();
 // ===== カレンダー確認（今日の予定を表示） =====
 async function checkCalendar() {
   try {
-    const res = await fetch('/api/dayshift');
+    const base = location.hostname === 'localhost' || location.hostname.match(/^192\./)
+      ? ''
+      : 'https://aaaaiko02-design.github.io/hometask-web';
+    const res = await fetch(base + '/dayshift-cache.json?_=' + Date.now());
     if (!res.ok) throw new Error();
     const data = await res.json();
+    if (data.date !== today()) { calendarLoading.textContent = 'まだ今日のデータがありません'; return; }
 
     calendarLoading.hidden = true;
     renderEvents(data.events || []);
