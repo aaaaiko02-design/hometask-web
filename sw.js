@@ -1,4 +1,4 @@
-const CACHE = 'hometask-v13';
+const CACHE = 'hometask-v14';
 const BASE = self.registration.scope.replace(/\/$/, '');
 const FILES = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json'].map(f => BASE + f);
 

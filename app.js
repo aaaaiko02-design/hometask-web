@@ -22,10 +22,18 @@ function today() {
 
 // ===== ストレージ =====
 function loadTasks() {
-  try { const r = localStorage.getItem(TASKS_KEY); return r ? JSON.parse(r) : null; }
-  catch { return null; }
+  try {
+    const r = localStorage.getItem(TASKS_KEY);
+    if (!r) return null;
+    const d = JSON.parse(r);
+    // 日付が変わっていたらタスクをリセット
+    if (d.date && d.date !== today()) return [];
+    return d.tasks ?? d; // 旧形式（配列）との互換
+  } catch { return null; }
 }
-function saveTasks(t) { localStorage.setItem(TASKS_KEY, JSON.stringify(t)); }
+function saveTasks(t) {
+  localStorage.setItem(TASKS_KEY, JSON.stringify({ date: today(), tasks: t }));
+}
 
 function loadArrived() {
   try {
