@@ -544,6 +544,36 @@ body {
   cursor: pointer;
 }
 
+/* ===== 端末間の同期 ===== */
+.sync-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #eee;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.sync-badge[data-state="同期中"] { background: var(--pink); color: #fff; }
+.sync-badge[data-state="接続中…"] { background: var(--pink-light); color: #fff; }
+.sync-badge[data-state="エラー"] { background: #ffd9df; color: #d6336c; }
+
+.pink-save-btn:disabled { opacity: .5; cursor: default; }
+
+.sync-off-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #d6336c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.sync-off-btn:active { background: #ffe4e8; }
+
 /* ===== トースト ===== */
 .toast {
   position: fixed;

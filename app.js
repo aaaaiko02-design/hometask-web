@@ -33,6 +33,7 @@ function loadTasks() {
 }
 function saveTasks(t) {
   localStorage.setItem(TASKS_KEY, JSON.stringify({ date: today(), tasks: t }));
+  notifyChanged();
 }
 
 function loadArrived() {
@@ -45,6 +46,7 @@ function loadArrived() {
 }
 function saveArrived(v) {
   localStorage.setItem(ARRIVED_KEY, JSON.stringify({ date: today(), arrived: v }));
+  notifyChanged();
 }
 
 function loadDone() {
@@ -57,12 +59,49 @@ function loadDone() {
 }
 function saveDone(d) {
   localStorage.setItem(DONE_KEY, JSON.stringify({ date: today(), done: d }));
+  notifyChanged();
 }
 
 // ===== 状態 =====
 let tasks      = loadTasks() ?? [];
 let hasArrived = loadArrived();
 let doneMap    = loadDone();
+
+// ===== 端末間同期のブリッジ =====
+// sync.js（Firebase）が読み書きするための入口。同期未設定なら何も起きない。
+let applyingRemote = false; // リモート反映中はローカル変更として押し戻さない
+
+function notifyChanged() {
+  if (applyingRemote) return;
+  window.dispatchEvent(new CustomEvent('hometask:changed'));
+}
+
+// 現在の状態を同期用の形にして返す
+function getSyncState() {
+  return { date: today(), tasks, arrived: hasArrived, done: doneMap };
+}
+
+// リモートから受け取った状態をローカルへ反映して再描画する
+function applySyncState(s) {
+  if (!s) return;
+  applyingRemote = true;
+  try {
+    localStorage.setItem(TASKS_KEY,   JSON.stringify({ date: s.date, tasks: s.tasks || [] }));
+    localStorage.setItem(ARRIVED_KEY, JSON.stringify({ date: s.date, arrived: !!s.arrived }));
+    localStorage.setItem(DONE_KEY,    JSON.stringify({ date: s.date, done: s.done || {} }));
+    // 既存ローダーで読み直す（日付が変わっていればリセット処理も効く）
+    tasks      = loadTasks() ?? [];
+    hasArrived = loadArrived();
+    doneMap    = loadDone();
+    renderTasks();
+    updateArriveBtn();
+    arriveBanner.hidden = !hasArrived;
+  } finally {
+    applyingRemote = false;
+  }
+}
+
+window.HomeTask = { getSyncState, applySyncState };
 
 // ===== DOM =====
 const calendarLoading = document.getElementById('calendar-loading');

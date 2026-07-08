@@ -1,6 +1,6 @@
-const CACHE = 'hometask-v14';
+const CACHE = 'hometask-v15';
 const BASE = self.registration.scope.replace(/\/$/, '');
-const FILES = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json'].map(f => BASE + f);
+const FILES = ['/', '/index.html', '/style.css', '/app.js', '/sync.js', '/firebase-config.js', '/manifest.json'].map(f => BASE + f);
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));

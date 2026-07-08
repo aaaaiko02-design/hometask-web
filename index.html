@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="帰宅タスク">
   <meta name="theme-color" content="#FF6B9D">
   <title>🌸 帰宅タスク</title>
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
 </head>
@@ -62,6 +62,17 @@
       <span class="arrive-text">帰宅した！</span>
     </button>
 
+    <!-- 端末間の同期 -->
+    <section class="card sync-card">
+      <div class="card-label">
+        <span class="card-icon">🔄</span>
+        <span class="card-title">端末間の同期</span>
+        <span class="sync-badge" id="sync-status" data-state="オフ">オフ</span>
+      </div>
+      <p class="card-hint">スマホとパソコンで同じ「同期コード」を設定すると、タスクが自動でそろいます。</p>
+      <button class="pink-save-btn sync-open-btn" id="sync-open-btn">同期コードを設定</button>
+    </section>
+
   </main>
 
   <!-- タスク追加シート -->
@@ -78,7 +89,28 @@
     </div>
   </div>
 
+  <!-- 同期コード設定シート -->
+  <div class="sheet-overlay" id="sync-sheet" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 class="sheet-title">同期コードを設定</h3>
+      <p class="card-hint" style="margin:0 0 12px">
+        両方の端末で<b>同じコード</b>を入力してください。片方で「作成」して、もう片方に同じコードを入れるだけでOKです。
+      </p>
+      <input class="sheet-input" id="sync-code-input" type="text"
+             placeholder="例: ABC123" maxlength="24"
+             autocapitalize="characters" autocomplete="off" spellcheck="false">
+      <button class="pink-save-btn" id="sync-gen-btn" style="margin-bottom:16px">ランダムなコードを作成</button>
+      <div class="sheet-btns">
+        <button class="sheet-cancel" id="sync-cancel">キャンセル</button>
+        <button class="sheet-save" id="sync-save">この端末で使う</button>
+      </div>
+      <button class="sync-off-btn" id="sync-off" hidden>同期をやめる</button>
+    </div>
+  </div>
+
   <script src="app.js"></script>
+  <script type="module" src="sync.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js');
